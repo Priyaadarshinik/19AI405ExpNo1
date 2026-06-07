@@ -1,50 +1,57 @@
 import random
 
-class HealthMonitoringAgent:
-    def __init__(self, patient_data):
-        self.patient_data = patient_data
+class MedicinePrescribingAgent:
+    def __init__(self):
+        self.performance = 0
 
-    def monitor_health(self):
-        while True:
-            current_health_state = self.sensors.get_health_state()
-            action = self.choose_action(current_health_state)
-            self.actuators.perform_action(action)
-            if self.choose_action(current_health_state)=="No specific action needed":
-                break
+    def check_patient(self, room, temperature):
+        print(f"\nChecking Room {room}")
+        print(f"Patient Temperature: {temperature}°F")
 
-    def choose_action(self, current_health_state):
-        # Example: A simple rule-based system for decision-making
-        if current_health_state['heart_rate'] > 120:
-            return "Alert healthcare provider: High heart rate detected"
-        elif current_health_state['blood_pressure'] > 140:
-            return "Alert healthcare provider: High blood pressure detected"
-        elif current_health_state['temperature'] > 38:
-            return "Recommend rest and monitor temperature"
+        if temperature > 98.5:
+            print("Patient is unhealthy (Fever detected).")
+            self.actuators.prescribe_medicine(room)
+            self.performance += 1
         else:
-            return "No specific action needed"
+            print("Patient is healthy.")
 
-class HealthSensors:
-    def get_health_state(self):
-        # Example: Simulate health data retrieval (replace with real data in a practical scenario)
-        return {
-            'heart_rate': random.randint(60, 150),
-            'blood_pressure': random.randint(90, 160),
-            'temperature': random.uniform(36.0, 38.5)
-        }
+    def move(self, from_room, to_room):
+        print(f"\nMoving from Room {from_room} to Room {to_room}")
+        self.performance -= 1
 
-class HealthActuators:
-    def perform_action(self, action):
-        # Example: Print or log the action (in a real scenario, this might involve more complex actions)
-        print(action)
+    def display_performance(self):
+        print("\nFinal Performance:", self.performance)
+
+
+class TemperatureSensor:
+    def get_temperature(self):
+        # Random temperature between 97 and 103
+        return round(random.uniform(97.0, 103.0), 1)
+
+
+class MedicineActuator:
+    def prescribe_medicine(self, room):
+        print(f"Medicine prescribed to patient in Room {room}")
+
 
 if __name__ == "__main__":
-    patient_data = {'patient_id': 123, 'name': 'John Doe', 'age': 35}
-    
-    health_sensors = HealthSensors()
-    health_actuators = HealthActuators()
-    
-    health_monitoring_agent = HealthMonitoringAgent(patient_data)
-    health_monitoring_agent.sensors = health_sensors
-    health_monitoring_agent.actuators = health_actuators
-    
-    health_monitoring_agent.monitor_health()
+
+    sensor = TemperatureSensor()
+    actuator = MedicineActuator()
+
+    agent = MedicinePrescribingAgent()
+    agent.actuators = actuator
+
+    # Room A
+    tempA = sensor.get_temperature()
+    agent.check_patient("A", tempA)
+
+    # Move to Room B
+    agent.move("A", "B")
+
+    # Room B
+    tempB = sensor.get_temperature()
+    agent.check_patient("B", tempB)
+
+    # Display performance
+    agent.display_performance()
